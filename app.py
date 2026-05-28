@@ -155,15 +155,18 @@ fig, ax = plt.subplots(figsize=(12, 5))
 ax.plot(
     y_test.values[:50],
     label="Actual",
-    linewidth=3
+    linewidth=3,
+    color="blue",
+    marker="o"
 )
 
 ax.plot(
     predictions[:50],
     label="Predicted",
-    linewidth=3
+    linewidth=2,
+    color="orange",
+    linestyle="dashed"
 )
-
 ax.set_title("Gold Price Prediction")
 ax.set_xlabel("Samples")
 ax.set_ylabel("Price")
