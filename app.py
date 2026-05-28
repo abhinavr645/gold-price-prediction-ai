@@ -87,12 +87,22 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
+# Train Random Forest Model
+model = RandomForestRegressor(
+    n_estimators=100,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+# Save Model
+joblib.dump(model, "gold_model.pkl")
+
 # Load Saved Model
 loaded_model = joblib.load("gold_model.pkl")
 
 # Predictions
 predictions = loaded_model.predict(X_test)
-
 # Accuracy
 mae = mean_absolute_error(y_test, predictions)
 r2 = r2_score(y_test, predictions)
