@@ -1,5 +1,7 @@
-pyspark
+streamlit
 pandas
-pyyaml
+numpy
 matplotlib
-pyarrow
+scikit-learn
+plotly
+joblib
