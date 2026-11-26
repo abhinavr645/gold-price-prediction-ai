@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -17,10 +18,17 @@ st.set_page_config(
 )
 
 # -----------------------------------
+# AUD TO INR CONVERSION
+# -----------------------------------
+AUD_TO_INR = 61.23
+
+# -----------------------------------
 # TITLE
 # -----------------------------------
 st.title("Gold Price Prediction Dashboard")
-st.markdown("### AI-Powered Gold Market Analysis")
+st.markdown("### AI-Powered Gold Market Analysis (INR ₹)")
+
+st.sidebar.success(f"Exchange Rate: 1 AUD = ₹{AUD_TO_INR}")
 
 # -----------------------------------
 # LOAD DATA
@@ -38,9 +46,20 @@ df = load_data()
 df["Date"] = pd.to_datetime(df["Date"])
 
 # -----------------------------------
+# AUD TO INR CONVERSION
+# -----------------------------------
+price_columns = ["Open", "High", "Low", "Close"]
+
+for col in price_columns:
+    df[col] = df[col] * AUD_TO_INR
+
+# -----------------------------------
 # SMALLER DATASET FOR FAST DEPLOYMENT
 # -----------------------------------
-df_small = df.sample(10000, random_state=42)
+df_small = df.sample(
+    min(10000, len(df)),
+    random_state=42
+)
 
 # -----------------------------------
 # SIDEBAR
@@ -76,22 +95,22 @@ col1, col2, col3, col4 = st.columns(4)
 
 col1.metric(
     "Current Gold Price",
-    f"${df['Close'].iloc[-1]:.2f}"
+    f"₹{df['Close'].iloc[-1]:,.2f}"
 )
 
 col2.metric(
     "Highest Price",
-    f"${df['High'].max():.2f}"
+    f"₹{df['High'].max():,.2f}"
 )
 
 col3.metric(
     "Lowest Price",
-    f"${df['Low'].min():.2f}"
+    f"₹{df['Low'].min():,.2f}"
 )
 
 col4.metric(
     "Average Volume",
-    f"{df['Volume'].mean():.0f}"
+    f"{df['Volume'].mean():,.0f}"
 )
 
 # -----------------------------------
@@ -136,8 +155,8 @@ st.subheader("Model Performance")
 m1, m2 = st.columns(2)
 
 m1.metric(
-    "Mean Absolute Error",
-    f"{mae:.2f}"
+    "Mean Absolute Error (INR)",
+    f"₹{mae:,.2f}"
 )
 
 m2.metric(
@@ -167,9 +186,10 @@ ax.plot(
     color="orange",
     linestyle="dashed"
 )
+
 ax.set_title("Gold Price Prediction")
 ax.set_xlabel("Samples")
-ax.set_ylabel("Price")
+ax.set_ylabel("Gold Price (INR ₹)")
 
 ax.legend()
 ax.grid(True)
@@ -187,7 +207,9 @@ ax2.plot(df["Close"][:500])
 
 ax2.set_title("Gold Price Trend")
 ax2.set_xlabel("Time")
-ax2.set_ylabel("Close Price")
+ax2.set_ylabel("Close Price (INR ₹)")
+
+ax2.grid(True)
 
 st.pyplot(fig2)
 
@@ -212,25 +234,29 @@ ax3.plot(
 
 ax3.legend()
 ax3.set_title("Moving Average Analysis")
+ax3.set_ylabel("Gold Price (INR ₹)")
+ax3.grid(True)
 
 st.pyplot(fig3)
 
 # -----------------------------------
 # CUSTOM PREDICTION
 # -----------------------------------
-st.subheader("Predict Future Gold Price")
+st.subheader("Predict Gold Price")
 
 user_input = st.number_input(
-    f"Enter {feature} value",
+    f"Enter {feature} value (INR ₹)",
     value=float(df[feature].mean())
 )
 
 if st.button("Predict Price"):
 
-    prediction = model.predict([[user_input]])
+    prediction = model.predict(
+        pd.DataFrame([[user_input]], columns=[feature])
+    )
 
     st.success(
-        f"Predicted {target} Price: ${prediction[0]:.2f}"
+        f"Predicted {target} Price: ₹{prediction[0]:,.2f}"
     )
 
 # -----------------------------------
@@ -245,8 +271,8 @@ future_inputs = np.array(
 future_predictions = model.predict(future_inputs)
 
 forecast_df = pd.DataFrame({
-    "Input Value": future_inputs.flatten(),
-    "Predicted Price": future_predictions
+    "Input Value (INR ₹)": future_inputs.flatten(),
+    "Predicted Price (INR ₹)": future_predictions
 })
 
 st.write("Next Predicted Gold Prices")
@@ -266,7 +292,7 @@ ax_forecast.plot(
 
 ax_forecast.set_title("Future Gold Price Forecast")
 ax_forecast.set_xlabel("Future Steps")
-ax_forecast.set_ylabel("Predicted Price")
+ax_forecast.set_ylabel("Predicted Price (INR ₹)")
 
 ax_forecast.grid(True)
 
@@ -308,7 +334,7 @@ st.pyplot(fig4)
 # -----------------------------------
 # CANDLESTICK CHART
 # -----------------------------------
-st.subheader("Live Candlestick Chart")
+st.subheader("Gold Price Candlestick Chart")
 
 candlestick_df = df.head(300)
 
@@ -321,9 +347,9 @@ fig5 = go.Figure(data=[go.Candlestick(
 )])
 
 fig5.update_layout(
-    title="Gold Price Candlestick Chart",
+    title="Gold Price Candlestick Chart (INR ₹)",
     xaxis_title="Date",
-    yaxis_title="Gold Price",
+    yaxis_title="Gold Price (INR ₹)",
     height=600,
     xaxis_rangeslider_visible=False
 )
@@ -336,4 +362,6 @@ st.plotly_chart(
 # -----------------------------------
 # FOOTER
 # -----------------------------------
-st.success("Gold Price Prediction Dashboard Running Successfully")
+st.success(
+    "Gold Price Prediction Dashboard Running Successfully (INR ₹)"
+)
